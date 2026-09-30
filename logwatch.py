@@ -117,7 +117,7 @@ def d1_requetes_par_ip(entrees, top_ips):
     """D1 - nombre de requetes par IP, les top_ips plus actives en tete, et la somme de toutes."""
     compteur = Counter()
     for e in entrees:
-        if e["statut"] < 400:          # on ne compte que les requetes servies
+        if e["statut"]:          # on ne compte que les requetes servies
             compteur[e["ip"]] += 1
     top = compteur.most_common(top_ips)
     return {
