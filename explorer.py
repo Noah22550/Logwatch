@@ -2,7 +2,8 @@ from logwatch import lire_log
 
 sample_logs, ignorees = lire_log("sample-logs.log")
 
-print(f"Nombre de lignes lues : {(len(sample_logs))}")
+print(f"Nombre de lignes lues : {len(sample_logs)}")
+print(f"et nombre de lignes ignorees : {ignorees}")
 
 
 """Compte le nombre de requetes par famille de code de réponse"""
@@ -16,7 +17,7 @@ print(sum(compteur.values()))  # Devrait correspondre au nombre total de lignes 
 
 compteur2  = {}
 for log in sample_logs:
-  adresseIp = log["ip"]  # Regroupe les codes par famille (2xx, 3xx, 4xx, 5xx)
+  adresseIp = log["ip"]  
   compteur2[adresseIp] = compteur2.get(adresseIp, 0) + 1
 print(compteur2)
 print(sum(compteur2.values()))  # Devrait correspondre au nombre total de lignes lues
