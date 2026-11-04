@@ -1,6 +1,6 @@
 from logwatch import lire_log
 
-sample_logs, ignorees = lire_log("sample-logs.log")
+sample_logs, ignorees = lire_log("dix-echecs.log")
 
 print(f"Nombre de lignes lues : {len(sample_logs)}")
 print(f"et nombre de lignes ignorees : {ignorees}")
@@ -67,3 +67,9 @@ nombre_de_minutes = len(par_minute)
 charge_calculee = somme_requetes / nombre_de_minutes
 
 print(f"Charge calculée : {round(charge_calculee, 1)}")
+
+
+total_requetes = sum(compteur.values())
+part_5xx = compteur.get("5xx", 0) / total_requetes if total_requetes > 0 else 0
+
+print(f"[D5] Part des 5xx : {part_5xx:.1%} | Seuil README : [6.5%]")
