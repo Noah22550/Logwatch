@@ -1,6 +1,6 @@
 from logwatch import lire_log
 
-sample_logs, ignorees = lire_log("dix-echecs.log")
+sample_logs, ignorees = lire_log("sample-logs.log")
 
 print(f"Nombre de lignes lues : {len(sample_logs)}")
 print(f"et nombre de lignes ignorees : {ignorees}")
@@ -72,4 +72,29 @@ print(f"Charge calculée : {round(charge_calculee, 1)}")
 total_requetes = sum(compteur.values())
 part_5xx = compteur.get("5xx", 0) / total_requetes if total_requetes > 0 else 0
 
-print(f"[D5] Part des 5xx : {part_5xx:.1%} | Seuil README : [6.5%]")
+print(f"[D5] Part des 5xx : {part_5xx:.1%} ({compteur.get('5xx', 0)}/{total_requetes}) | Seuil README : 5.0%")
+
+motifs_scan = ["wp-admin", "wp-login", "phpmyadmin", ".env", ".git", "../", "xmlrpc", "/admin/"]
+suspects = {}
+for log in sample_logs:
+    url_min = log["url"].lower()
+    if any(m in url_min for m in motifs_scan):
+        suspects.setdefault(log["ip"], set()).add(log["url"])
+alertes_scan = {ip: len(urls) for ip, urls in suspects.items() if len(urls) >= 5}
+print(f"[D3] IPs scanner (>= 5 URLs distinctes) : {alertes_scan}")
+
+# D7 - Requetes lentes (duree en microsecondes dans le log, seuil en millisecondes)
+avec_duree = [log for log in sample_logs if log["duree"] is not None]
+lentes_seuil_0 = [log for log in avec_duree if log["duree"] / 1000 > 0]
+
+seuil_lenteur_ms = 2000
+lentes = [log for log in avec_duree if log["duree"] / 1000 > seuil_lenteur_ms]
+plus_lente = max(lentes, key=lambda log: log["duree"]) if lentes else None
+
+print(f"[D7] Verification seuil 0 ms : {len(lentes_seuil_0)} / {len(avec_duree)} entrees avec duree")
+print(f"[D7] Requetes lentes (> {seuil_lenteur_ms} ms) : {len(lentes)}")
+if plus_lente:
+    print(
+        f"[D7] Plus lente : {plus_lente['duree'] / 1000:.1f} ms "
+        f"({plus_lente['ip']} {plus_lente['methode']} {plus_lente['url']})"
+    )
